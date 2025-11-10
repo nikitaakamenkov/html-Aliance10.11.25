@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контакты | ALIANCE PRODUCTION</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=YOUR_YANDEX_API_KEY&lang=ru_RU" type="text/javascript"></script>
+
+ <style>
+     * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+            background: #fff; /* Установка базового фона */
+        }
+
+        /* === БАЗОВЫЕ СТИЛИ === */
+        a { text-decoration: none; color: inherit; }
+        img { max-width: 100%; height: auto; display: block; }
+        .logo-img { height: 30px; width: auto; object-fit: contain; }
+
+        /* === МОБИЛЬНАЯ ШАПКА И МЕНЮ === */
+        .mobile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            background: #ffffff;
+            border-bottom: 1px solid #e0e0e0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+        }
+
+        .burger {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .burger svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .mobile-logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #111;
+            font-weight: bold;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .mobile-logo img {
+            height: 35px;
+            width: auto;
+        }
+
+        .mobile-phone {
+            background: #007bff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mobile-phone svg {
+            width: 20px;
+            height: 20px;
+            fill: #ffffff;
+        }
+
+        /* === Мобильное меню — выезжает сверху === */
+        .mobile-menu {
+            position: fixed;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            transition: top 0.4s ease;
+            z-index: 10002; /* ИСПРАВЛЕНО: Увеличен z-index, чтобы быть выше map-controls (9999) */
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .mobile-menu.active {
+            top: 0;
+        }
+
+        .mobile-menu-top {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            z-index: 10003; /* Обновлен z-index */
+        }
+
+        .mobile-menu-top .close-menu {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            padding: 0;
+        }
+
+        .mobile-menu-logo {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10004; /* Обновлен z-index */
+        }
+
+        .mobile-menu-logo img {
+            height: 36px;
+            width: auto;
+        }
+
+        .mobile-menu-phone {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #007bff;
+            border-radius: 6px;
+            text-decoration: none;
+            z-index: 10003; /* Обновлен z-index */
+        }
+
+        .menu-phone-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .mobile-menu-body {
+            padding: 16px;
+            padding-top: 18px;
+        }
+
+        .mobile-menu-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .mobile-menu-body li {
+            margin-bottom: 12px;
+        }
+
+        .mobile-menu-body a {
+            color: #333;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            display: block;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .menu-contacts {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .menu-contacts p {
+            margin: 8px 0;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .menu-contacts .phone-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 10001; /* ИСПРАВЛЕНО: Увеличен z-index, чтобы быть выше map-controls (9999) */
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* === ДЕСКТОПНАЯ ШАПКА === */
+        .desktop-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: transparent;
+            padding: 0 30px;
+            height: 70px;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            transition: background-color 0.3s;
+            box-shadow: none;
+        }
+
+        .desktop-header.scrolled {
+            background: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .desktop-nav a, .desktop-contacts .phone {
+            color: #000000;
+            transition: color 0.3s;
+        }
+
+        .desktop-nav a {
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .desktop-nav a:hover {
+            color: #2e9cff;
+        }
+
+        .desktop-contacts {
+            display: flex;
+            align-items: center;
+        }
+
+        .desktop-contacts .phone {
+            font-size: 16px;
+            font-weight: 500;
+            margin-right: 20px;
+        }
+
+        .desktop-btn {
+            background: #2e9cff;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .desktop-btn:hover {
+            background: #007bff;
+        }
+
+        .desktop-logo img {
+            height: 30px;
+            width: auto;
+        }
+        
+        /* === Styles for Topbar and Map === */
+        :root{
+          --accent:#0b66ff;
+          --muted:#6b7280;
+          --bg:#f7f8fb;
+        }
+        
+        .topbar{
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:16px;
+          padding:18px 40px;
+          background:transparent;
+          max-width:1100px;
+          margin:24px auto 6px;
+        }
+
+        .contacts{
+          display:flex;
+          gap:18px;
+          align-items:center;
+          font-size:16px;
+          color:var(--muted);
+        }
+        .phone{
+          font-weight:700;
+          font-size:20px;
+          text-decoration:underline;
+          color:#111827;
+        }
+
+        .map-wrap{
+          max-width:1100px;
+          margin:18px auto 60px;
+          background:white;
+          border-radius:10px;
+          padding:10px;
+          box-shadow: 0 6px 20px rgba(16,24,40,0.06);
+          position: relative; /* Добавлено для позиционирования контролов */
+        }
+
+        #map{
+          height:480px;
+          border-radius:8px;
+          width:100%;
+          display:block;
+        }
+
+        /* === СТИЛИ ДЛЯ КОНТРОЛОВ КАРТЫ (СОЦСЕТИ И ПОЧТА) === */
+        .map-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 999; /* ИСПРАВЛЕНО: Уменьшен z-index, чтобы не перекрывать мобильное меню */
+            background: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .map-controls a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #333;
+            font-size: 15px;
+            transition: color 0.2s;
+        }
+
+        .map-controls a:hover {
+            color: #2e9cff;
+        }
+        
+        .map-controls i {
+            font-size: 18px;
+        }
+
+        @media (max-width:720px){
+            .topbar{
+                flex-direction:column; 
+                align-items:flex-start; 
+                padding:14px;
+                margin-top: 70px; /* Смещение topbar вниз на высоту мобильной шапки */
+            }
+            .contacts{
+                flex-direction:column; 
+                align-items:flex-start; 
+                gap:8px;
+            }
+            #map{
+                height:360px;
+            }
+            .map-wrap {
+                 margin: 18px auto 60px;
+            }
+            /* Скрываем контролы на очень маленьких экранах, чтобы не мешали карте */
+            .map-controls {
+                top: 10px;
+                right: 10px;
+                padding: 5px 8px;
+                gap: 5px;
+            }
+            .map-controls a {
+                font-size: 13px;
+            }
+            .map-controls i {
+                font-size: 16px;
+            }
+        }
+        /* === Конец стилей для Topbar и Map === */
+
+        /* === General Section Styles === */
+        .content-section {
+            padding: 80px 20px;
+            background: white;
+        }
+
+        .section-title {
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 50px;
+            color: #333;
+        }
+        
+        .brands-section {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .brand-item {
+            flex: 1;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            text-align: left;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: #fff;
+        }
+
+        .brand-item:first-child {
+            background: #f8f8f8;
+        }
+
+        .brand-item:last-child {
+            background: #e6f2ff;
+        }
+
+        .brand-item img {
+            max-height: 60px;
+            margin-bottom: 10px;
+        }
+        
+        .form-section {
+            background: #f5f5f5;
+            padding: 80px 20px;
+        }
+
+        .form-content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: stretch;
+            gap: 40px;
+        }
+
+        .form-image-block {
+            width: 50%;
+            height: 100%;
+            border-radius: 8px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .form-image-block img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .form-container {
+            flex: 1;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group i {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .form-group input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: #2e9cff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .confidentiality-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .footer {
+            background: #fff;
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            text-align: left;
+            color: #333;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 20px;
+            color: #2e9cff;
+        }
+
+        .footer-section a {
+            color: #333;
+            text-decoration: none;
+        }
+
+        .footer-section a:hover {
+            color: #007bff;
+        }
+
+        /* === АДАПТИВНОСТЬ === */
+        @media (min-width: 901px) {
+            .mobile-header,
+            .mobile-hero,
+            .mobile-workflow-container,
+            .mobile-production-container,
+            .mobile-brands-container,
+            .mobile-menu,
+            .overlay,
+            .mobile-image-scroll {
+                display: none !important;
+            }
+
+            .desktop-header {
+                display: flex;
+            }
+            .brands-section {
+                display: flex;
+            }
+
+            .footer-content {
+                text-align: left;
+            }
+
+            .form-content-wrapper {
+                flex-direction: row;
+            }
+
+            .form-image-block {
+                order: 1;
+            }
+
+            .form-container {
+                order: 2;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .desktop-header,
+            .brands-section {
+                display: none;
+            }
+
+            .mobile-header {
+                display: flex;
+            }
+            
+            .mobile-brands-container {
+                display: block;
+            }
+
+            .footer-content {
+                text-align: center;
+            }
+
+            .form-content-wrapper {
+                flex-direction: column;
+            }
+
+            .form-image-block {
+                width: 100%;
+                min-height: 250px;
+                order: 1;
+            }
+
+            .form-container {
+                order: 2;
+                padding: 20px;
+            }
+
+            .form-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .form-group input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-header">
+        <button class="burger" aria-label="Меню" id="burgerBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
+        <a href="index.html" class="mobile-logo"><img src="Aliance1.png" alt="ALIANCE PRODUCTION" class="logo-img"></a>
+        <button class="mobile-phone" aria-label="Позвонить">
+            <svg viewBox="0 0 24 24" fill="none">
+                <path d="M22 16.92v3.58a2 2 0 0 1-2.18 2 19.72 19.72 0 0 1-8.63-3.13 19.5 19.5 0 0 1-6-6A19.72 19.72 0 0 1 2.5 4.18 2 2 0 0 1 4.5 2h3.58a2 2 0 0 1 2 1.72c.12 1.05.36 2.08.72 3.06a2 2 0 0 1-.45 2.11L9.7 10.7a16 16 0 0 0 6 6l1.81-1.45a2 2 0 0 1 2.11-.45c.98.36 2.01.6 3.06.72A2 2 0 0 1 22 16.92z" fill="white"/>
+            </svg>
+        </button>
+    </div>
+  
+    <header class="desktop-header">
+        <a href="index.html" class="desktop-logo"><img src="Aliance1.png" alt="ALIANCE PRODUCTION" class="logo-img"></a>
+        <nav class="desktop-nav">
+            <a href="proect_1.html">О компании</a>
+            <a href="proect_2.html">Контрактное производство</a>
+            <a href="proect_3.html">Собственные марки</a>
+            <a href="proect_4.html">Новости</a>
+            <a href="proect_5.html">Контакты</a>
+        </nav>
+        <div class="desktop-contacts">
+            <span class="phone">+7 (499) 686-10-14</span>
+            <a href="#contacts" class="desktop-btn">Получить консультацию</a>
+        </div>
+    </header>
+
+   
+
+
+   
+ <header class="topbar">
+        <div>
+        
+
+        </div>
+    </header>
+
+    <div class="map-wrap">
+        <div id="map"></div>
+        
+        <div class="map-controls">
+            <a href="#" target="_blank" aria-label="ВКонтакте">
+                <i class="fab fa-vk"></i>
+                <span>ВКонтакте</span>
+            </a>
+            <a href="#" target="_blank" aria-label="Instagram">
+                <i class="fab fa-instagram"></i>
+                <span>Instagram</span>
+            </a>
+            <a href="mailto:a.dragunov@tdaliance.ru" aria-label="Почта">
+                <i class="fas fa-envelope"></i>
+                <span>a.dragunov@tdaliance.ru</span>
+            </a>
+        </div>
+    </div>
+
+
+    <div class="overlay" id="overlay"></div>
+
+    <nav class="mobile-menu" id="mobileMenu" aria-hidden="true">
+        <div class="mobile-menu-top">
+            <button class="close-menu" id="closeMenu" aria-label="Закрыть меню">✕</button>
+            <a href="index.html" class="mobile-menu-logo" aria-label="Главная">
+                <img src="Aliance1.png" alt="Logo">
+            </a>
+            <a href="tel:+74996861014" class="mobile-menu-phone" aria-label="Позвонить">
+                <svg viewBox="0 0 24 24" fill="none" class="menu-phone-icon" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22 16.92v3.58a2 2 0 0 1-2.18 2 19.72 19.72 0 0 1-8.63-3.13 19.5 19.5 0 0 1-6-6A19.72 19.72 0 0 1 2.5 4.18 2 2 0 0 1 4.5 2h3.58a2 2 0 0 1 2 1.72c.12 1.05.36 2.08.72 3.06a2 2 0 0 1-.45 2.11L9.7 10.7a16 16 0 0 0 6 6l1.81-1.45a2 2 0 0 1 2.11-.45c.98.36 2.01.6 3.06.72A2 2 0 0 1 22 16.92z" fill="#fff"/>
+                </svg>
+            </a>
+        </div>
+        <div class="mobile-menu-body">
+              <ul>
+                <li><a href="proect_1.html">О компании</a></li>
+                <li><a href="proect_2.html">Контрактное производство</a></li>
+                <li><a href="proect_3.html"> Собственные марки</a></li>
+                <li><a href="proect_4.html">  Новости</a></li>
+                <li><a href="proect_5.html"> Контакты</a></li>
+            </ul>
+
+            <div class="menu-contacts">
+                <p class="phone-number">+7 (499) 686-10-14</p>
+                <p class="address">г. Москва, Холодильный пер. 4к1с8</p>
+                <p><a href="mailto:a.dragunov@tdaliance.ru" style="color:#1152cc;text-decoration:none;">a.dragunov@tdaliance.ru</a></p>
+            </div>
+        </div>
+    </nav>
+
+
+    <section class="form-section" id="contacts">
+        <h2 class="section-title" style="margin-bottom: 20px;">ХОТИТЕ СОТРУДНИЧАТЬ?</h2>
+        <p style="text-align: center; margin-bottom: 40px; color: #666;">Наш специалист свяжется с вами в течение 10 минут</p>
+        <div class="form-content-wrapper">
+            <div class="form-image-block">
+                <img src="AG  10.png" alt="Контактное лицо">
+            </div>
+            <div class="form-container">
+                <form>
+                    <div class="form-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" placeholder="Ваше имя" required>
+                    </div>
+                    <div class="form-group">
+                        <i class="fas fa-phone-alt"></i>
+                        <input type="tel" placeholder="Номер телефона" required>
+                    </div>
+                    <div class="form-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" placeholder="E-mail">
+                    </div>
+                    <button type="submit" class="submit-btn">Получить консультацию</button>
+                    <div class="confidentiality-text">
+                        <i class="fas fa-lock"></i>
+                        <span>Нажимая кнопку, вы соглашаетесь на обработку персональных данных</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+
+<style>
+.footer-logo {
+  display: block;
+}
+
+/* Центрируем только на телефонах */
+@media (max-width: 768px) {
+  .footer-logo {
+    margin: 0 auto; /* по центру горизонтально */
+  }
+}
+</style>
+
+
+
+
+    <footer class="footer">
+    <div class="footer-content">
+        <div class="footer-section footer-contacts">
+            <a href="#">
+                <img src="Aliance1.png" alt="ALIANCE PRODUCTION" class="footer-logo">
+            </a>
+            <p class="contact-info contact-phone">+7 (499) 686-10-14</p>
+            <p class="contact-info contact-address">г. Москва, Холодильный пер. 4к1с8</p>
+            <p class="contact-info contact-email"><a href="mailto:a.dragunov@tdaliance.ru">a.dragunov@tdaliance.ru</a></p>
+        </div>
+
+        <div class="footer-section footer-contract-prod-1">
+            <h3 class="footer-title">Контрактное производство</h3>
+            <ul>
+                <li><a href="auto.html">Автомобильная химия</a></li>
+                <li><a href="proect_2.html">Бытовая химия</a></li>
+                <li><a href="proect_2.html">Дезинфицирующие средства</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-section footer-contract-prod-2">
+            <ul>
+                <li><a href="proect_2.html">Пищевые аэрозоли</a></li>
+                <li><a href="proect_2.html">Косметическая продукция</a></li>
+                <li><a href="proect_2.html">Краски аэрозольные</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-section">
+            <h3 class="footer-title">Собственные марки</h3>
+            <ul>
+                <li><a href="proect_3.html">Автохимия AG-Tech</a></li>
+                <li><a href="proect_3.html">Автохимия AP</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-section">
+            <h3 class="footer-title">О компании</h3>
+            <ul>
+                <li><a href="proect_4.html">Новости</a></li>
+                <li><a href="proect_5.html">Контакты</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="footer-copyright">
+            © 2023 ALIANCE PRODUCTION. Все права защищены.
+        </div>
+        <div class="footer-legal-links">
+            <a href="#">Политика конфиденциальности</a>
+            <a href="#">Условия использования</a>
+        </div>
+    </div>
+</footer>
+<style>
+/* --- Стили для Подвала (Футера) --- */
+.footer {
+    background-color: #f7f7f7; /* Светлый фон, как на изображении */
+    padding: 40px 0;
+    font-family: Arial, sans-serif;
+}
+
+.footer-content {
+    /* Создаем 5 колонок */
+    display: grid;
+    grid-template-columns: 1.5fr repeat(4, 1fr); /* Первая колонка шире для контактов */
+    max-width: 1200px; /* Установите максимальную ширину вашего контейнера */
+    margin: 0 auto;
+    padding: 0 20px;
+    gap: 25px;
+}
+
+.footer-section {
+    padding: 0;
+}
+
+.footer-logo {
+    height: 30px;
+    margin-bottom: 20px;
+}
+
+/* Стили для заголовков */
+.footer-title {
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    /* Убедимся, что заголовок "Контрактное производство" визуально занимает 2 колонки */
+    /* В нашем HTML он находится только в footer-contract-prod-1,
+       используем grid-column для размещения заголовка */
+}
+
+/* Скрываем заголовок во второй части "Контрактного производства" */
+.footer-contract-prod-2 .footer-title {
+    display: none;
+}
+
+/* Стили для ссылок и контактов */
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section li {
+    margin-bottom: 10px;
+}
+
+.footer-section a,
+.contact-info {
+    color: #555;
+    font-size: 14px;
+    text-decoration: none;
+    line-height: 1.5;
+}
+
+.footer-section a:hover {
+    text-decoration: underline;
+}
+
+.contact-info {
+    margin-bottom: 5px;
+}
+
+
+/* --- Нижняя полоса (Copyright и Legal) --- */
+.footer-bottom {
+    max-width: 1200px;
+    margin: 30px auto 0;
+    padding: 20px 20px 0;
+    border-top: 1px solid #e0e0e0;
+    font-size: 14px;
+    color: #666;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-legal-links a {
+    color: #666;
+    text-decoration: none;
+    margin-left: 20px;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr; /* Колонки выстраиваются в один столбец */
+        gap: 25px;
+    }
+}
+</style>
+
+
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // === Логика мобильного меню ===
+            const burgerBtn = document.getElementById('burgerBtn');
+            const closeMenu = document.getElementById('closeMenu');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('overlay');
+            const menuLinks = mobileMenu.querySelectorAll('a');
+
+            function toggleMenu() {
+                mobileMenu.classList.toggle('active');
+                overlay.classList.toggle('active');
+                // Блокируем скролл страницы при открытом меню
+                document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : 'auto';
+            }
+
+            burgerBtn.addEventListener('click', toggleMenu);
+            closeMenu.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+
+            menuLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (mobileMenu.classList.contains('active')) {
+                        toggleMenu();
+                    }
+                });
+            });
+
+            // === Логика прокрутки шапки (Desktop) ===
+            window.addEventListener('scroll', () => {
+                const header = document.querySelector('.desktop-header');
+                if (window.scrollY > 0) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+
+            // === Инициализация Яндекс Карты ===
+            const mapElement = document.getElementById('map');
+            if (mapElement) {
+                // Проверяем наличие глобального объекта ymaps
+                if (typeof ymaps !== 'undefined') {
+                    ymaps.ready(function initYandexMap() {
+                        const lat = 55.709414; // Широта для Холодильный пер., 4
+                        const lng = 37.624058; // Долгота для Холодильный пер., 4
+                        const mapCenter = [lat, lng];
+                        
+                        // Создание объекта карты
+                        var myMap = new ymaps.Map('map', {
+                            center: mapCenter,
+                            zoom: 15,
+                            // Оставляем только нужные контролы
+                            controls: ['zoomControl'] 
+                        }, {
+                            searchControlProvider: 'yandex#search'
+                        });
+
+                        // Создаем метку
+                        var placemark = new ymaps.Placemark(mapCenter, {
+                            balloonContentHeader: 'ALIANCE PRODUCTION',
+                            balloonContentBody: 'г. Москва, Холодильный пер., 4, к.1с8'
+                        }, {
+                            // Кастомный вид метки
+                            preset: 'islands#blueBusinessCircleIcon' 
+                        });
+
+                        myMap.geoObjects.add(placemark);
+                        
+                        // Опционально: отключаем скролл для мобильных устройств
+                        if (window.innerWidth < 768) {
+                            myMap.behaviors.disable('scrollZoom');
+                        }
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
